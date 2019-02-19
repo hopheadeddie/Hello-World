@@ -1,0 +1,114 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using System.Net.Sockets;
+
+
+
+namespace WindowsFormsApp1
+{
+    public partial class Form1 : Form
+    {
+        public String lastdata;
+        public String httpCommand;
+        public Form1()
+        {
+            InitializeComponent();
+
+            string server = "192.168.1.156";
+            TcpClient client = new TcpClient(server, 80);
+
+            StreamReader sr = new StreamReader(client.GetStream());
+            StreamWriter sw = new StreamWriter(client.GetStream());
+
+            try
+            {
+                sw.WriteLine("GET /LEDON?ON=12 HTTP/1.0\n\n"); //"GET / HTTP/1.0\n\n"  "GET  /LEDON\n\n"
+                sw.Flush();
+
+                string data = sr.ReadLine();
+                while (data != null)
+                {
+                //Console.WriteLine(data);
+                    textBox1.AppendText(data + "\n");
+                    lastdata = data;
+                    data = sr.ReadLine();
+                }
+                textBox2.Text = lastdata;
+                //Console.Read();
+                client.Close();
+            }
+            catch (Exception e)
+            {
+
+            }
+
+        }
+
+        public void  ClientSend()
+        {
+            //LedButton1.BackColor = Color.Red;
+            ;
+            textBox1.Clear();
+            textBox1.Text = DateTime.Now.ToString("hh.mm.ss.ffffff\n");
+            string server = "192.168.1.156";                //Make a text box for this (IPAddress)
+            TcpClient client = new TcpClient(server, 80);   // and this (PORT)
+            client.NoDelay=true;
+            StreamReader sr = new StreamReader(client.GetStream());
+            StreamWriter sw = new StreamWriter(client.GetStream());
+            textBox1.AppendText(DateTime.Now.ToString("hh.mm.ss.ffffff\n"));
+            try
+            {                                                   //
+                sw.WriteLine(httpCommand); //"GET / HTTP/1.0\n\n"  "GET /LEDON?ON=12 HTTP/1.0\n\n"
+                sw.Flush();
+                // LedButton1.BackColor = Color.Gray;
+                textBox1.AppendText(DateTime.Now.ToString("hh.mm.ss.ffffff\n"));
+                string data = sr.ReadLine();
+                while (data != null)
+                {
+                    //Console.WriteLine(data);
+                    textBox1.AppendText(DateTime.Now.ToString("hh.mm.ss.ffffff\n"));
+                    textBox1.AppendText(data + "\n");
+                    lastdata = data;
+                    data = sr.ReadLine();
+                 
+                }
+                textBox1.AppendText(DateTime.Now.ToString("hh.mm.ss.ffffff\n"));
+                textBox2.Text = lastdata;
+                //Console.Read();
+               
+                client.Close();
+            }
+            catch (Exception f)
+            {
+
+            }
+
+
+
+
+        }
+
+        private void LedButton1_Click(object sender, EventArgs e)
+        {
+            httpCommand="GET /LEDON?ON=12 HTTP/1.0\n\n";
+            ClientSend();
+        }
+
+        private void LedoffButton_Click(object sender, EventArgs e)
+        {
+            httpCommand = "GET /LEDOFF HTTP/1.0\n\n";
+            ClientSend();
+        }
+
+        
+        
+    }
+}
